@@ -38,7 +38,7 @@ def main():
       image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
       
-      # Perform the processing we want for the application.
+      # Perform custom processing for the application.
       processed = hand_processing(image, results)
         
       # Flip the frame horizontally for a selfie-view display.
@@ -60,12 +60,13 @@ def main():
         break
     
   cap.release()
+  cv2.destroyAllWindows()
 
 
 def hand_processing(image, results):
-    # Create iterable hand landmark object
+    # Create iterable hand landmark object.
     hand_landmarks = results.multi_hand_landmarks
-    # Create handedness variable to store whether the relevant hand is left or right
+    # Create handedness variable to store whether the relevant hand is left or right.
     handedness = ""
 
     if results.multi_hand_landmarks:
@@ -74,7 +75,7 @@ def hand_processing(image, results):
             classification = ["Right hand", "Left hand"]
             index = hand.classification[0].index
             handedness = classification[index]
-            print(handedness)
+            #print(handedness)
 
         for hand_landmark in hand_landmarks:
             # Determine numerical finger status. Using these values you can associate "Open" or "Closed" states.

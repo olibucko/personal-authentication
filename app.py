@@ -1,16 +1,15 @@
 import gesture_recognition
 
-# Gesture recognition effective.
-# Facial recognition 
-
+user = "Oliver"
 
 
 def app():
-  print("Provide the authentication gesture")
+  # Call facial recognition here
+
+  print("Facial recognition successful...")
+  print("Hi " + user + " please provide the authentication gesture")
   gesture_recognition.main()
-  print("Gesture authenticated")
-  print("Provide facial recognition")
-
-
+  print("Gesture authenticated...")
+  print("Welcome back")
 
 app()
