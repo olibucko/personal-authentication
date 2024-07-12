@@ -1,10 +1,36 @@
 import face_recognition
 import cv2
 import numpy as np
-import utility_funcs
+import time
+import datetime
+import os
+import sys
+
+################## DEFINE GLOBAL VARIABLE ######################
+
+device_locked = False
+run_program = True
+
+################## DEFINE FUNCTIONS ######################
+
+def countdown(h, m, s):
+      total_seconds = h * 3600 + m * 60 + s
+
+      while total_seconds > 0:
+            timer = datetime.timedelta(seconds = total_seconds)
+
+            print(timer, end="\r")
+
+            # Delays the program one second
+            time.sleep(1)
+
+            # Reduces total time by one second
+            total_seconds -= 1
+
+      print("Timer countdown complete")
 
 def f_recog():
-
+    global device_locked
     # Get a reference to webcam #0 (the default one)
     video_capture = cv2.VideoCapture(0)
 
@@ -86,8 +112,34 @@ def f_recog():
         # Display the resulting image
         cv2.imshow('Video', frame)
 
-        # Perform authentication checking
-        utility_funcs.userCheck(face_names, "Oliver")
+        # Perform authentication logic
+        if type(face_names) is list and type("Oliver") is str:
+            if device_locked == False:
+                if "Oliver" in face_names:
+                    print("Successful authentication this frame.")
+                elif "Oliver" not in face_names:
+                    print("Device lock countdown intiated.")
+                    countdown(0,0,5)
+                    print("DEVICE LOCKED")
+                    os.system("gnome-screensaver-command -a")
+                    device_locked = True
+                    break
+                else:
+                    print("This should not be happening. Error.")
+
+            if device_locked == True:
+                if "Oliver" in face_names:
+                    print("Unlocking device.")
+                    os.system("gnome-screensaver-command -d")
+                    device_locked = False
+                elif "Oliver" not in face_names:
+                    print("Keeping device locked.")
+                    continue
+                else:
+                    print("This should not be happening. Error.")
+        else:
+            print("Data failed to pass quality checks.")
+            return
 
         # Hit 'q' on the keyboard to quit!
         if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -95,5 +147,18 @@ def f_recog():
             cv2.destroyAllWindows()
             break
 
+################## APPLICATION LOGIC ######################
+
 if __name__ == "__main__":
-    f_recog()
+    while run_program == True:
+        if f_recog() == None:
+            
+            # Find state of the lock screen and assign to variable
+            if os.system("gnome-screensaver-command -q") != "The screensaver is inactive":
+                device_locked = True
+            elif os.system("gnome-screensaver-command -q") == "The screensaver is inactive":
+                device_locked = False
+
+            f_recog()
+            
+    
