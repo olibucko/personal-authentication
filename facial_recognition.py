@@ -4,7 +4,6 @@ import numpy as np
 import time
 import datetime
 import os
-import sys
 
 ################## DEFINE GLOBAL VARIABLE ######################
 
@@ -30,7 +29,6 @@ def countdown(h, m, s):
       print("Timer countdown complete")
 
 def f_recog():
-    global device_locked
     # Get a reference to webcam #0 (the default one)
     video_capture = cv2.VideoCapture(0)
 
@@ -112,53 +110,68 @@ def f_recog():
         # Display the resulting image
         cv2.imshow('Video', frame)
 
-        # Perform authentication logic
-        if type(face_names) is list and type("Oliver") is str:
-            if device_locked == False:
-                if "Oliver" in face_names:
-                    print("Successful authentication this frame.")
-                elif "Oliver" not in face_names:
-                    print("Device lock countdown intiated.")
-                    countdown(0,0,5)
-                    print("DEVICE LOCKED")
-                    os.system("gnome-screensaver-command -a")
-                    device_locked = True
-                    break
-                else:
-                    print("This should not be happening. Error.")
+        return face_names
 
-            if device_locked == True:
-                if "Oliver" in face_names:
-                    print("Unlocking device.")
-                    os.system("gnome-screensaver-command -d")
-                    device_locked = False
-                elif "Oliver" not in face_names:
-                    print("Keeping device locked.")
-                    continue
-                else:
-                    print("This should not be happening. Error.")
-        else:
-            print("Data failed to pass quality checks.")
-            return
-
-        # Hit 'q' on the keyboard to quit!
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            video_capture.release()
-            cv2.destroyAllWindows()
-            break
-
+def authenticate(people, authorised):
+    if authorised in people:
+        return True
+    if authorised not in people:
+        return False    
 ################## APPLICATION LOGIC ######################
 
 if __name__ == "__main__":
-    while run_program == True:
-        if f_recog() == None:
-            
-            # Find state of the lock screen and assign to variable
-            if os.system("gnome-screensaver-command -q") != "The screensaver is inactive":
-                device_locked = True
-            elif os.system("gnome-screensaver-command -q") == "The screensaver is inactive":
-                device_locked = False
 
-            f_recog()
-            
-    
+    while run_program == True:
+
+        if device_locked == True:
+
+            # Delay before checking
+            countdown(0,0,2)
+
+            # Perform user check
+            check = f_recog()
+            result = authenticate(check, "Oliver")
+
+            # Unlock or remain locked based on result
+            if result == True:
+                print("Unlock device")
+                os.system("gnome-screensaver-command -d")
+                device_locked = False
+            elif result == False:
+                print("Keep device locked")
+
+        elif device_locked == False:
+
+            # Delay before checking
+            countdown(0,0,5) # Change to 10s
+
+            # Perform user check
+            check = f_recog()
+            result = authenticate(check, "Oliver")
+
+            # Lock or remain unlocked based on result
+            if result == True:
+                print("Remain unlocked")
+            elif result == False:
+                print("Lock device")
+                os.system("gnome-screensaver-command -l")
+                device_locked = True
+
+        # Hit 'q' on the keyboard to quit!
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            run_program = False
+            cv2.destroyAllWindows()
+            break
+
+        
+
+
+
+
+
+        
+
+
+
+
+###  screen_state = os.system('''gnome-screensaver-command -q | grep "is inactive"''')
