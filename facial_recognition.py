@@ -5,7 +5,7 @@ import time
 import datetime
 import os
 
-################## DEFINE GLOBAL VARIABLE ######################
+################## DEFINE GLOBAL VARIABLES ######################
 
 device_locked = False
 run_program = True
@@ -108,7 +108,7 @@ def f_recog():
             cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
 
         # Display the resulting image
-        cv2.imshow('Video', frame)
+        # cv2.imshow('Video', frame)
 
         return face_names
 
@@ -143,7 +143,7 @@ if __name__ == "__main__":
         elif device_locked == False:
 
             # Delay before checking
-            countdown(0,0,5) # Change to 10s
+            countdown(0,0,10)
 
             # Perform user check
             check = f_recog()
@@ -156,22 +156,3 @@ if __name__ == "__main__":
                 print("Lock device")
                 os.system("gnome-screensaver-command -l")
                 device_locked = True
-
-        # Hit 'q' on the keyboard to quit!
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            run_program = False
-            cv2.destroyAllWindows()
-            break
-
-        
-
-
-
-
-
-        
-
-
-
-
-###  screen_state = os.system('''gnome-screensaver-command -q | grep "is inactive"''')
